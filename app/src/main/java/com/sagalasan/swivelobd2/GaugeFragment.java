@@ -1,17 +1,25 @@
 package com.sagalasan.swivelobd2;
 
 import android.content.Context;
+import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v7.widget.LinearLayoutCompat;
+import android.util.Log;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.FrameLayout;
 import android.widget.GridLayout;
+import android.widget.LinearLayout;
 
+import com.sagalasan.swivelobd2.view.DisplayView;
 import com.sagalasan.swivelobd2.view.GaugeView;
 
+import java.lang.reflect.GenericArrayType;
 import java.util.List;
 
 
@@ -25,6 +33,7 @@ import java.util.List;
  */
 public class GaugeFragment extends Fragment
 {
+  private static final String TAG = GaugeFragment.class.getName();
   // TODO: Rename parameter arguments, choose names that match
   // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
   private static final String ARG_PARAM1 = "param1";
@@ -37,6 +46,11 @@ public class GaugeFragment extends Fragment
   private OnFragmentInteractionListener mListener;
 
   private List<GaugeView> gaugeViews;
+
+  private static final int PADDING = 4;
+
+  private int numRows = 3;
+  private int numCols = 2;
 
   public GaugeFragment()
   {
@@ -85,14 +99,46 @@ public class GaugeFragment extends Fragment
     // Inflate the layout for this fragment
     View view = inflater.inflate(R.layout.fragment_gauge, container, false);
 
-    GridLayout gaugeGrid = (GridLayout) view.findViewById(R.id.gauge_grid);
+    int viewWidth = container.getWidth();
+    int viewHeight = container.getHeight();
 
-    Button button = new Button(getContext());
-    button.setGravity(1);
+    Log.d(TAG, "viewWidth " + viewWidth + " viewHeight " + viewHeight);
 
-    gaugeGrid.addView(button);
-    gaugeGrid.addView(new Button(getContext()));
-    gaugeGrid.addView(new Button(getContext()));
+    LinearLayout linearLayout = (LinearLayout) view.findViewById(R.id.gauge_container);
+    linearLayout.setLayoutParams(new FrameLayout.LayoutParams(
+            FrameLayout.LayoutParams.MATCH_PARENT,
+            FrameLayout.LayoutParams.MATCH_PARENT));
+
+    linearLayout.removeAllViews();
+
+    linearLayout.setPadding(PADDING, PADDING, PADDING, PADDING);
+
+    LinearLayout.LayoutParams rowParams = new LinearLayout.LayoutParams(
+            LinearLayout.LayoutParams.MATCH_PARENT, 0);
+    rowParams.weight = 1;
+
+    for(int i = 0; i < numRows; i++)
+    {
+      LinearLayout rowLayout = new LinearLayout(getContext());
+      rowLayout.setLayoutParams(new FrameLayout.LayoutParams(
+              FrameLayout.LayoutParams.MATCH_PARENT,
+              FrameLayout.LayoutParams.WRAP_CONTENT));
+
+      rowLayout.setOrientation(LinearLayout.HORIZONTAL);
+      LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(0,
+              LinearLayout.LayoutParams.MATCH_PARENT);
+      params.weight = 1;
+      for(int j = 0; j < numCols; j++)
+      {
+        LinearLayout containerLayout = new LinearLayout(getContext());
+        containerLayout.setPadding(PADDING, PADDING, PADDING, PADDING);
+        containerLayout.setGravity(Gravity.CENTER);
+        DisplayView displayView = new DisplayView(getContext());
+        containerLayout.addView(displayView);
+        rowLayout.addView(containerLayout, params);
+      }
+      linearLayout.addView(rowLayout, rowParams);
+    }
 
     return view;
   }
